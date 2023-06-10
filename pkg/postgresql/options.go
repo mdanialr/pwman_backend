@@ -3,6 +3,7 @@ package postgresql
 import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
 )
 
 type Options func(*gorm.Config)
@@ -28,5 +29,28 @@ func WithCustomLogger(l logger.Interface) Options {
 func WithDisableForeignKeyWhenMigrating() Options {
 	return func(c *gorm.Config) {
 		c.DisableForeignKeyConstraintWhenMigrating = true
+	}
+}
+
+// WithDisableNestedTrx disable default nested transaction.
+func WithDisableNestedTrx() Options {
+	return func(c *gorm.Config) {
+		c.DisableNestedTransaction = true
+	}
+}
+
+// WithSkipDefaultTrx skip default transaction.
+func WithSkipDefaultTrx() Options {
+	return func(c *gorm.Config) {
+		c.SkipDefaultTransaction = true
+	}
+}
+
+// WithSingularTableName set all tables name to singular.
+func WithSingularTableName() Options {
+	return func(c *gorm.Config) {
+		c.NamingStrategy = schema.NamingStrategy{
+			SingularTable: true,
+		}
 	}
 }

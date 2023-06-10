@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/mdanialr/pwman_backend/internal/entity"
 	conf "github.com/mdanialr/pwman_backend/pkg/config"
 	gl "github.com/mdanialr/pwman_backend/pkg/gorm"
 	"github.com/mdanialr/pwman_backend/pkg/migration/seeder"
@@ -28,13 +29,17 @@ func Run(isSeeder, isDrop bool) {
 	// drop tables
 	if isDrop {
 		fmt.Println("Dropping All Tables")
-		db.Migrator().DropTable()
+		db.Migrator().DropTable(
+			&entity.RegisteredOTP{},
+		)
 		fmt.Println("Done Dropping All Tables")
 	}
 
 	// create tables
 	fmt.Println("Creating All Tables")
-	db.Migrator().AutoMigrate()
+	db.Migrator().AutoMigrate(
+		&entity.RegisteredOTP{},
+	)
 	fmt.Println("Done Creating All Tables")
 
 	// seed the tables with fake data from seeders
@@ -60,6 +65,7 @@ func initGorm() *gorm.DB {
 		postgresql.WithCustomLogger(gormLog),
 		postgresql.WithPrepareStatement(),
 		postgresql.WithDisableForeignKeyWhenMigrating(),
+		postgresql.WithSingularTableName(),
 	)
 	if err != nil {
 		log.Fatalln("failed to init gorm with mysql as the DB:", err)
