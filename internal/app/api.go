@@ -4,6 +4,9 @@ import (
 	auth "github.com/mdanialr/pwman_backend/internal/domain/auth/delivery"
 	authRepo "github.com/mdanialr/pwman_backend/internal/domain/auth/repository"
 	authUC "github.com/mdanialr/pwman_backend/internal/domain/auth/usecase"
+	pw "github.com/mdanialr/pwman_backend/internal/domain/password/delivery"
+	pwRepo "github.com/mdanialr/pwman_backend/internal/domain/password/repository"
+	pwUC "github.com/mdanialr/pwman_backend/internal/domain/password/usecase"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
@@ -33,10 +36,13 @@ func (h *HttpHandler) SetupRouter() {
 
 	// init repositories
 	authRepository := authRepo.NewRepository(h.DB)
+	pwRepository := pwRepo.NewRepository(h.DB)
 
 	// init use cases
 	authUseCase := authUC.NewUseCase(h.Config, h.Log, authRepository)
+	pwUseCase := pwUC.NewUseCase(h.Config, h.Log, pwRepository)
 
 	// init handlers
-	auth.NewDelivery(v1, authUseCase) // - /auth/*
+	auth.NewDelivery(v1, authUseCase)       // - /auth/*
+	pw.NewDelivery(v1, h.Config, pwUseCase) // - /category/*
 }
