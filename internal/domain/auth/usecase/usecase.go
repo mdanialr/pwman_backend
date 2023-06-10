@@ -2,9 +2,9 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"time"
 
+	cons "github.com/mdanialr/pwman_backend/internal/constant"
 	"github.com/mdanialr/pwman_backend/internal/domain/auth"
 	authRepo "github.com/mdanialr/pwman_backend/internal/domain/auth/repository"
 	stderr "github.com/mdanialr/pwman_backend/internal/err"
@@ -14,19 +14,6 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
-)
-
-const (
-	UsedOTP    = "USED_OTP"
-	InvalidOTP = "INVALID_OTP"
-	DepsErr    = "DEPS_ERROR"
-)
-
-var (
-	ErrUsedOTP        = errors.New("otp has been used")
-	ErrInvalidOTP     = errors.New("invalid otp")
-	ErrInternalServer = errors.New("something wasn't right")
-	ErrSigningToken   = errors.New("signing token error")
 )
 
 // NewUseCase return concrete implementation of UseCase in auth domain.
@@ -45,7 +32,7 @@ func (u *useCase) ValidateOTP(ctx context.Context, req auth.Request) (*auth.Resp
 	ot, err := twofa.InitOTPWithConfig(u.conf)
 	if err != nil {
 		u.zap.Error(help.Pad("failed to init otp with config from app:", err.Error()))
-		return nil, stderr.NewUC(DepsErr, ErrInternalServer.Error())
+		return nil, stderr.NewUC(cons.DepsErr, cons.ErrInternalServer.Error())
 	}
 
 	// verify the validity of given totp code from request
@@ -59,24 +46,24 @@ func (u *useCase) ValidateOTP(ctx context.Context, req auth.Request) (*auth.Resp
 		if ro, _ := u.repo.GetByCode(ctx, req.Code); ro != nil {
 			// return false if it's exist in db
 			if ro.ID != 0 {
-				return nil, stderr.NewUC(UsedOTP, ErrUsedOTP.Error())
+				return nil, stderr.NewUC(cons.UsedOTP, cons.ErrUsedOTP.Error())
 			}
 			// delete all past records
 			if err = u.repo.DeleteAll(ctx); err != nil {
 				u.zap.Error(help.Pad("failed to delete all records of RegisteredCode:", err.Error()))
-				return nil, stderr.NewUC(DepsErr, ErrInternalServer.Error())
+				return nil, stderr.NewUC(cons.DepsErr, cons.ErrInternalServer.Error())
 			}
 			// then save the recent one
 			if _, err = u.repo.Create(ctx, req.Code); err != nil {
 				u.zap.Error(help.Pad("failed to save new RegisteredCode:", err.Error()))
-				return nil, stderr.NewUC(DepsErr, ErrInternalServer.Error())
+				return nil, stderr.NewUC(cons.DepsErr, cons.ErrInternalServer.Error())
 			}
 			// create new jwt
 			return u.CreateJWT(ctx)
 		}
 	}
 
-	return nil, stderr.NewUC(InvalidOTP, ErrInvalidOTP.Error())
+	return nil, stderr.NewUC(cons.InvalidOTP, cons.ErrInvalidOTP.Error())
 }
 
 func (u *useCase) CreateJWT(_ context.Context) (*auth.Response, error) {
@@ -93,7 +80,7 @@ func (u *useCase) CreateJWT(_ context.Context) (*auth.Response, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	at, err := token.SignedString([]byte(u.conf.GetString("jwt.secret")))
 	if err != nil {
-		return nil, stderr.NewUC(DepsErr, ErrSigningToken.Error())
+		return nil, stderr.NewUC(cons.DepsErr, cons.ErrSigningToken.Error())
 	}
 
 	// give back the constructed response
