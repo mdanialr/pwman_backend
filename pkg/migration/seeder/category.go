@@ -9,14 +9,14 @@ import (
 func category(db *gorm.DB) {
 	samples := []entity.Category{
 		{
-			Name:      "Fake",
-			IconPath:  "icon/fake-icon.png",
-			ImagePath: "img/fake.png",
+			Name:      "FAKE",
+			IconPath:  "fake-icon.png",
+			ImagePath: "fake.png",
 		},
 		{
-			Name:      "Dummies",
-			IconPath:  "icon/dummy-icon.png",
-			ImagePath: "img/dummy.png",
+			Name:      "DUMMIES",
+			IconPath:  "dummy-icon.png",
+			ImagePath: "dummy.png",
 		},
 	}
 
