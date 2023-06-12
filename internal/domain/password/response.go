@@ -36,10 +36,10 @@ type IndexResponse struct {
 	Pagination *paginate.M
 }
 
-// NewIndexResponseFromModel create new pointer IndexResponse from given slices
+// NewIndexResponseFromEntity create new pointer IndexResponse from given slices
 // of entity.Category. Also prepend given prefix to both Image & Icon fields
 // after cleaning the trailing slash.
-func NewIndexResponseFromModel(cats []*entity.Category, prefix string) *IndexResponse {
+func NewIndexResponseFromEntity(cats []*entity.Category, prefix string) *IndexResponse {
 	var res []*Response
 
 	for _, cat := range cats {

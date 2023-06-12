@@ -28,7 +28,7 @@ func (d *delivery) Index(c *fiber.Ctx) error {
 	// set up the query order and sort
 	req.SetQuery()
 
-	res, err := d.uc.Index(c.Context(), req)
+	res, err := d.uc.IndexCategory(c.Context(), req)
 	if err != nil {
 		return resp.Error(c, resp.WithErr(err))
 	}

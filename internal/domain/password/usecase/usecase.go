@@ -25,7 +25,7 @@ type useCase struct {
 	repo pw.Repository
 }
 
-func (u *useCase) Index(ctx context.Context, req password.Request) (*password.IndexResponse, error) {
+func (u *useCase) IndexCategory(ctx context.Context, req password.Request) (*password.IndexResponse, error) {
 	// set up repo options
 	opts := []repo.Options{repo.Paginate(&req.M), repo.Order(req.Order + " " + req.Sort)}
 	// additionally add search option
@@ -38,11 +38,11 @@ func (u *useCase) Index(ctx context.Context, req password.Request) (*password.In
 	cats, err := u.repo.FindCategories(ctx, opts...)
 	if err != nil {
 		u.log.Error(help.Pad("failed to retrieve categories:", err.Error()))
-		return nil, stderr.NewUC(cons.DepsErr, cons.ErrInternalServer.Error())
+		return nil, stderr.NewUCErr(cons.DepsErr, cons.ErrInternalServer)
 	}
 
 	// prepare the response to contain the actual data and the pagination info
-	resp := password.NewIndexResponseFromModel(cats, u.conf.GetString("storage.url"))
+	resp := password.NewIndexResponseFromEntity(cats, u.conf.GetString("storage.url"))
 	resp.Pagination = &req.M
 	resp.Pagination.Paginate()
 
