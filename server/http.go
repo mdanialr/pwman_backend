@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/mdanialr/pwman_backend/internal/app"
 	conf "github.com/mdanialr/pwman_backend/pkg/config"
 	gormLogger "github.com/mdanialr/pwman_backend/pkg/gorm"
@@ -70,8 +71,14 @@ func HTTP() {
 		Output:     fiberLogWr,
 		TimeFormat: time.DateTime,
 	})
+	// init fiber monitor metrics config
+	monConf := monitor.Config{
+		Title:   "Password Manager API Metrics",
+		Refresh: 2 * time.Second,
+	}
 	// init fiber app
 	fiberApp := fiber.New(fiber.Config{
+		ReadTimeout:           10 * time.Second,
 		IdleTimeout:           5 * time.Second,
 		BodyLimit:             v.GetInt("server.limit") * 1024 * 1024,
 		RequestMethods:        []string{fiber.MethodHead, fiber.MethodGet, fiber.MethodPost},
@@ -86,6 +93,8 @@ func HTTP() {
 		recover.New(),
 		compress.New(),
 	)
+	// assign metrics to endpoint
+	fiberApp.Get("/metrics", monitor.New(monConf))
 
 	// init internal http handlers
 	h := app.HttpHandler{
@@ -117,6 +126,7 @@ func HTTP() {
 	fiberApp.Shutdown()
 	zapLog.Info("running cleanup tasks...")
 	// some clean up task should be done here
+	zapLog.Sync()
 	zapLog.Info("services was successful shutdown.")
 }
 
