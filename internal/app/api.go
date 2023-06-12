@@ -7,6 +7,7 @@ import (
 	pw "github.com/mdanialr/pwman_backend/internal/domain/password/delivery"
 	pwRepo "github.com/mdanialr/pwman_backend/internal/domain/password/repository"
 	pwUC "github.com/mdanialr/pwman_backend/internal/domain/password/usecase"
+	"github.com/mdanialr/pwman_backend/pkg/storage"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
@@ -16,10 +17,11 @@ import (
 
 // HttpHandler handler that use HTTP in the delivery layer.
 type HttpHandler struct {
-	R      fiber.Router
-	Log    *zap.Logger
-	DB     *gorm.DB
-	Config *viper.Viper
+	R       fiber.Router
+	Log     *zap.Logger
+	Storage storage.Port
+	DB      *gorm.DB
+	Config  *viper.Viper
 }
 
 // SetupRouter init all HTTP endpoints and their dependencies.
@@ -40,7 +42,7 @@ func (h *HttpHandler) SetupRouter() {
 
 	// init use cases
 	authUseCase := authUC.NewUseCase(h.Config, h.Log, authRepository)
-	pwUseCase := pwUC.NewUseCase(h.Config, h.Log, pwRepository)
+	pwUseCase := pwUC.NewUseCase(h.Config, h.Log, h.Storage, pwRepository)
 
 	// init handlers
 	auth.NewDelivery(v1, authUseCase)       // - /auth/*

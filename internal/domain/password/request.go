@@ -1,13 +1,24 @@
 package password
 
 import (
+	"mime/multipart"
 	"strings"
 
 	paginate "github.com/mdanialr/pwman_backend/pkg/pagination"
+
+	"github.com/go-playground/validator/v10"
 )
 
 // Request standard request object that may be used in password domain.
 type Request struct {
+	// Name the name of category.
+	Name string `form:"name" validate:"required"`
+	// Image binary file for image field that should be parsed manually from
+	// delivery.
+	Image *multipart.FileHeader `form:"image" validate:"required"`
+	// Icon binary file for icon field that should be parsed manually from
+	// delivery.
+	Icon *multipart.FileHeader `form:"icon" validate:"required"`
 	paginate.M
 	// Order the field name to query Order. Default to id.
 	Order string `json:"-" query:"order"`
@@ -39,4 +50,17 @@ func (r *Request) sanitizeQuerySort() string {
 		return r.Sort
 	}
 	return ""
+}
+
+// Validate apply validation rules for Request.
+func (r *Request) Validate() validator.ValidationErrors {
+	if err := validator.New().Struct(r); err != nil {
+		return err.(validator.ValidationErrors)
+	}
+	return nil
+}
+
+// NormalizeName transform value of Name field to upper-cased.
+func (r *Request) NormalizeName() {
+	r.Name = strings.ToUpper(r.Name)
 }

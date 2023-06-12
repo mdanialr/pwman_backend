@@ -15,6 +15,7 @@ import (
 	gormLogger "github.com/mdanialr/pwman_backend/pkg/gorm"
 	help "github.com/mdanialr/pwman_backend/pkg/helper"
 	"github.com/mdanialr/pwman_backend/pkg/postgresql"
+	"github.com/mdanialr/pwman_backend/pkg/storage"
 
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
@@ -60,6 +61,9 @@ func HTTP() {
 		log.Fatalln("failed to init gorm:", err)
 	}
 
+	// init storage provider
+	st := storage.NewFile(zapLog)
+
 	// init fiber app log writer
 	fiberLogWr, err := setupFiberWriter(v)
 	if err != nil {
@@ -98,10 +102,11 @@ func HTTP() {
 
 	// init internal http handlers
 	h := app.HttpHandler{
-		R:      fiberApp.Group("/api"),
-		DB:     db,
-		Config: v,
-		Log:    zapLog,
+		R:       fiberApp.Group("/api"),
+		DB:      db,
+		Config:  v,
+		Log:     zapLog,
+		Storage: st,
 	}
 	h.SetupRouter()
 

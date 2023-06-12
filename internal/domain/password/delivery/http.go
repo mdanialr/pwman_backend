@@ -16,6 +16,7 @@ func NewDelivery(app fiber.Router, conf *viper.Viper, uc pwUC.UseCase) {
 
 	api := app.Group("/category", md.JWT(conf))
 	api.Get("/", d.Index)
+	api.Post("/create", d.Create)
 }
 
 type delivery struct {
@@ -34,4 +35,26 @@ func (d *delivery) Index(c *fiber.Ctx) error {
 	}
 
 	return resp.Success(c, resp.WithData(res.Data), resp.WithMeta(res.Pagination))
+}
+
+func (d *delivery) Create(c *fiber.Ctx) error {
+	var req pw.Request
+	c.BodyParser(&req)
+	// manually retrieve binary files
+	req.Icon, _ = c.FormFile("icon")
+	req.Image, _ = c.FormFile("image")
+
+	// validate the request
+	if err := req.Validate(); err != nil {
+		return resp.Error(c, resp.WithErrValidation(err))
+	}
+	// normalize name field
+	req.NormalizeName()
+
+	res, err := d.uc.SaveCategory(c.Context(), req)
+	if err != nil {
+		return resp.Error(c, resp.WithErr(err))
+	}
+
+	return resp.Success(c, resp.WithData(res))
 }

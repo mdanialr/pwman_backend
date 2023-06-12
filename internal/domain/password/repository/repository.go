@@ -45,6 +45,5 @@ func (r *repository) FindCategories(ctx context.Context, opts ...repo.Options) (
 func (r *repository) CreateCategory(ctx context.Context, obj entity.Category) (*entity.Category, error) {
 	q := r.db.WithContext(ctx)
 
-	var c entity.Category
-	return &c, q.Create(&c).Error
+	return &obj, q.Create(&obj).Error
 }

@@ -7,8 +7,8 @@ import (
 )
 
 type Category struct {
-	ID        uint `gorm:"primarykey"`
-	Name      string
+	ID        uint   `gorm:"primarykey"`
+	Name      string `gorm:"unique"`
 	ImagePath string
 	IconPath  string
 	CreatedAt time.Time
