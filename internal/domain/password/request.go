@@ -15,10 +15,10 @@ type RequestCategory struct {
 	Name string `form:"name" validate:"required"`
 	// Image binary file for image field that should be parsed manually from
 	// delivery.
-	Image *multipart.FileHeader `form:"image" validate:"required"`
+	Image *multipart.FileHeader `form:"image"`
 	// Icon binary file for icon field that should be parsed manually from
 	// delivery.
-	Icon *multipart.FileHeader `form:"icon" validate:"required"`
+	Icon *multipart.FileHeader `form:"icon"`
 	paginate.M
 	// Order the field name to query Order. Default to id.
 	Order string `json:"-" query:"order"`
@@ -55,12 +55,25 @@ func (r *RequestCategory) sanitizeQuerySort() string {
 // Validate apply validation rules for RequestCategory.
 func (r *RequestCategory) Validate() validator.ValidationErrors {
 	v := validator.New()
-	v.RegisterStructValidation(r.ImageValidation, RequestCategory{})
+	v.RegisterStructValidation(r.imageValidation, RequestCategory{})
 
 	if err := v.Struct(r); err != nil {
 		return err.(validator.ValidationErrors)
 	}
 	return nil
+}
+
+// ValidateCreate apply validation rules for RequestCategory in create
+// endpoint.
+func (r *RequestCategory) ValidateCreate() validator.ValidationErrors {
+	v := validator.New()
+	v.RegisterStructValidation(r.createRequiredValidation, RequestCategory{})
+	if err := v.Struct(r); err != nil {
+		return err.(validator.ValidationErrors)
+	}
+
+	// then add the basic validation
+	return r.Validate()
 }
 
 // NormalizeName transform value of Name field to upper-cased.
@@ -75,9 +88,9 @@ var acceptedImages = map[string]any{
 	"image/png":  true,
 }
 
-// ImageValidation custom validation to make sure valid image extension are
+// imageValidation custom validation to make sure valid image extension are
 // sent.
-func (r *RequestCategory) ImageValidation(sl validator.StructLevel) {
+func (r *RequestCategory) imageValidation(sl validator.StructLevel) {
 	req := sl.Current().Interface().(RequestCategory)
 
 	if req.Image != nil {
@@ -91,5 +104,20 @@ func (r *RequestCategory) ImageValidation(sl validator.StructLevel) {
 		if _, ok := acceptedImages[ext]; !ok {
 			sl.ReportError(req.Icon, "icon", "Icon", "image", "Icon")
 		}
+	}
+}
+
+// createRequiredValidation custom required fields validation in create
+// endpoint.
+func (r *RequestCategory) createRequiredValidation(sl validator.StructLevel) {
+	req := sl.Current().Interface().(RequestCategory)
+
+	// required for field Image
+	if req.Image == nil {
+		sl.ReportError(req.Image, "image", "Image", "required", "Image")
+	}
+	// required for field Icon
+	if req.Icon == nil {
+		sl.ReportError(req.Icon, "icon", "Icon", "required", "Icon")
 	}
 }

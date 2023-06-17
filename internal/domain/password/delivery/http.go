@@ -45,7 +45,7 @@ func (d *delivery) Create(c *fiber.Ctx) error {
 	req.Image, _ = c.FormFile("image")
 
 	// validate the request
-	if err := req.Validate(); err != nil {
+	if err := req.ValidateCreate(); err != nil {
 		return resp.Error(c, resp.WithErrValidation(err))
 	}
 	// normalize name field
