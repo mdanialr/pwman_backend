@@ -86,7 +86,7 @@ func (u *useCase) SaveCategory(ctx context.Context, req password.RequestCategory
 	}
 	newObj, err := u.repo.CreateCategory(ctx, obj)
 	if err != nil {
-		u.log.Error(help.Pad("failed to creat new category:", err.Error()))
+		u.log.Error(help.Pad("failed to create new category:", err.Error()))
 		return nil, stderr.NewUCErr(cons.DepsErr, cons.ErrInternalServer)
 	}
 
