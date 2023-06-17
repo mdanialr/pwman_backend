@@ -3,6 +3,7 @@ package server
 import (
 	"errors"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"strings"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"github.com/mdanialr/pwman_backend/internal/app"
+	"github.com/mdanialr/pwman_backend/internal/middleware"
 	conf "github.com/mdanialr/pwman_backend/pkg/config"
 	gormLogger "github.com/mdanialr/pwman_backend/pkg/gorm"
 	help "github.com/mdanialr/pwman_backend/pkg/helper"
@@ -19,6 +21,7 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	fiberLog "github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/recover"
@@ -99,6 +102,13 @@ func HTTP() {
 	)
 	// assign metrics to endpoint
 	fiberApp.Get("/metrics", monitor.New(monConf))
+	// server file in /dl
+	dir := strings.TrimSuffix(v.GetString("storage.path"), "/")
+	fiberApp.Use("/dl",
+		// give jwt middleware before accessing any media resources
+		middleware.JWT(v),
+		filesystem.New(filesystem.Config{Root: http.Dir(dir)}),
+	)
 
 	// init internal http handlers
 	h := app.HttpHandler{
