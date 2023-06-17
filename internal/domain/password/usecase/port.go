@@ -9,12 +9,12 @@ import (
 
 // UseCase signature that's used in password domain for use case layer.
 type UseCase interface {
-	// IndexCategory retrieve all category information including the url to both image
-	// and icon.
-	IndexCategory(ctx context.Context, req pw.Request) (*pw.IndexResponse, error)
+	// IndexCategory retrieve all category information including the url to
+	// both image and icon.
+	IndexCategory(ctx context.Context, req pw.RequestCategory) (*pw.IndexResponse, error)
 	// SaveCategory create new category from given request including the binary
 	// files for both image and icon fields.
-	SaveCategory(ctx context.Context, req pw.Request) (*pw.Response, error)
+	SaveCategory(ctx context.Context, req pw.RequestCategory) (*pw.Response, error)
 	// SaveFile store given multipart to storage.Port then return filename of
 	// the stored file that's ready to be saved. Optionally append given
 	// prefix path too.

@@ -32,7 +32,7 @@ type useCase struct {
 	repo pw.Repository
 }
 
-func (u *useCase) IndexCategory(ctx context.Context, req password.Request) (*password.IndexResponse, error) {
+func (u *useCase) IndexCategory(ctx context.Context, req password.RequestCategory) (*password.IndexResponse, error) {
 	// set up repo options
 	opts := []repo.Options{repo.Paginate(&req.M), repo.Order(req.Order + " " + req.Sort)}
 	// additionally add search option
@@ -56,7 +56,7 @@ func (u *useCase) IndexCategory(ctx context.Context, req password.Request) (*pas
 	return resp, nil
 }
 
-func (u *useCase) SaveCategory(ctx context.Context, req password.Request) (*password.Response, error) {
+func (u *useCase) SaveCategory(ctx context.Context, req password.RequestCategory) (*password.Response, error) {
 	// make sure given category name not used yet in data store
 	cond := "name = '" + req.Name + "'"
 	c, _ := u.repo.GetCategoryByID(ctx, 0, repo.Cols("id"), repo.Cons(cond))

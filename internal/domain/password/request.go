@@ -9,8 +9,8 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// Request standard request object that may be used in password domain.
-type Request struct {
+// RequestCategory standard request object that may be used in password domain.
+type RequestCategory struct {
 	// Name the name of category.
 	Name string `form:"name" validate:"required"`
 	// Image binary file for image field that should be parsed manually from
@@ -30,7 +30,7 @@ type Request struct {
 }
 
 // SetQuery do setup Order and Sort.
-func (r *Request) SetQuery() {
+func (r *RequestCategory) SetQuery() {
 	if r.Order == "" {
 		r.Order = "id" // set default to id
 	}
@@ -44,7 +44,7 @@ func (r *Request) SetQuery() {
 }
 
 // sanitizeQuerySort make sure Sort has the expected value.
-func (r *Request) sanitizeQuerySort() string {
+func (r *RequestCategory) sanitizeQuerySort() string {
 	switch strings.ToLower(r.Sort) {
 	case "asc", "desc":
 		return r.Sort
@@ -52,10 +52,10 @@ func (r *Request) sanitizeQuerySort() string {
 	return ""
 }
 
-// Validate apply validation rules for Request.
-func (r *Request) Validate() validator.ValidationErrors {
+// Validate apply validation rules for RequestCategory.
+func (r *RequestCategory) Validate() validator.ValidationErrors {
 	v := validator.New()
-	v.RegisterStructValidation(ImageValidation, Request{})
+	v.RegisterStructValidation(r.ImageValidation, RequestCategory{})
 
 	if err := v.Struct(r); err != nil {
 		return err.(validator.ValidationErrors)
@@ -64,7 +64,7 @@ func (r *Request) Validate() validator.ValidationErrors {
 }
 
 // NormalizeName transform value of Name field to upper-cased.
-func (r *Request) NormalizeName() {
+func (r *RequestCategory) NormalizeName() {
 	r.Name = strings.ToUpper(r.Name)
 }
 
@@ -77,8 +77,8 @@ var acceptedImages = map[string]any{
 
 // ImageValidation custom validation to make sure valid image extension are
 // sent.
-func ImageValidation(sl validator.StructLevel) {
-	req := sl.Current().Interface().(Request)
+func (r *RequestCategory) ImageValidation(sl validator.StructLevel) {
+	req := sl.Current().Interface().(RequestCategory)
 
 	if req.Image != nil {
 		ext := req.Image.Header.Get("content-type")

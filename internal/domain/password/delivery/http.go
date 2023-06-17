@@ -24,7 +24,7 @@ type delivery struct {
 }
 
 func (d *delivery) Index(c *fiber.Ctx) error {
-	var req pw.Request
+	var req pw.RequestCategory
 	c.QueryParser(&req)
 	// set up the query order and sort
 	req.SetQuery()
@@ -38,7 +38,7 @@ func (d *delivery) Index(c *fiber.Ctx) error {
 }
 
 func (d *delivery) Create(c *fiber.Ctx) error {
-	var req pw.Request
+	var req pw.RequestCategory
 	c.BodyParser(&req)
 	// manually retrieve binary files
 	req.Icon, _ = c.FormFile("icon")
