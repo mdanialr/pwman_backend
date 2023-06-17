@@ -4,6 +4,7 @@ import (
 	"context"
 	"mime/multipart"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	cons "github.com/mdanialr/pwman_backend/internal/constant"
@@ -96,6 +97,58 @@ func (u *useCase) SaveCategory(ctx context.Context, req password.RequestCategory
 	return resp, nil
 }
 
+func (u *useCase) UpdateCategory(ctx context.Context, id uint, req password.RequestCategory) error {
+	// retrieve category from repo using given id
+	c, _ := u.repo.GetCategoryByID(ctx, id)
+	// do additional validation if the name from request and from repo is different
+	if c.Name != req.Name {
+		// make sure it's unique and not taken yet
+		cond := "name = '" + req.Name + "'"
+		oldC, _ := u.repo.GetCategoryByID(ctx, 0, repo.Cols("id"), repo.Cons(cond))
+		// return error if already exist
+		if oldC.ID != 0 {
+			return stderr.NewUCErr(cons.InvalidPayload, cons.ErrAlreadyExist)
+		}
+	}
+
+	// record the updated fields
+	updatedFields := []string{"name"}
+	newCategory := entity.Category{Name: req.Name}
+
+	// update Image if provided
+	if req.Image != nil {
+		updatedFields = append(updatedFields, "image_path")
+		// save new image
+		img, err := u.SaveFile(req.Image)
+		if err != nil {
+			u.log.Error(help.Pad("failed to save image:", req.Image.Filename, "with err:", err.Error()))
+			return stderr.NewUCErr(cons.DepsErr, cons.ErrInternalServer)
+		}
+		newCategory.ImagePath = img
+	}
+	// update Icon if provided
+	if req.Icon != nil {
+		updatedFields = append(updatedFields, "icon_path")
+		// save new icon
+		icon, err := u.SaveFile(req.Icon)
+		if err != nil {
+			u.log.Error(help.Pad("failed to save image:", req.Icon.Filename, "with err:", err.Error()))
+			return stderr.NewUCErr(cons.DepsErr, cons.ErrInternalServer)
+		}
+		newCategory.IconPath = icon
+	}
+
+	if _, err := u.repo.UpdateCategory(ctx, c.ID, newCategory, repo.Cols(updatedFields...)); err != nil {
+		u.log.Error(help.Pad("failed to update existing category with id:", strconv.Itoa(int(c.ID)), "and err:", err.Error()))
+		return stderr.NewUCErr(cons.DepsErr, cons.ErrInternalServer)
+	}
+
+	// lastly remove the old image & icon
+	go u.removeOldMedia(*c, updatedFields...)
+
+	return nil
+}
+
 func (u *useCase) SaveFile(f *multipart.FileHeader, prefix ...string) (string, error) {
 	fl, err := f.Open()
 	if err != nil {
@@ -122,4 +175,17 @@ func (u *useCase) SaveFile(f *multipart.FileHeader, prefix ...string) (string, e
 func (u *useCase) RemoveFile(fn string) {
 	pt := strings.TrimSuffix(u.conf.GetString("storage.path"), "/") + "/"
 	u.st.Remove(pt + fn)
+}
+
+// removeOldMedia do call RemoveFile method for each media's field name that
+// exist in given fields.
+func (u *useCase) removeOldMedia(c entity.Category, fields ...string) {
+	for _, field := range fields {
+		switch field {
+		case "image_path":
+			u.RemoveFile(c.ImagePath)
+		case "icon_path":
+			u.RemoveFile(c.IconPath)
+		}
+	}
 }

@@ -47,3 +47,15 @@ func (r *repository) CreateCategory(ctx context.Context, obj entity.Category) (*
 
 	return &obj, q.Create(&obj).Error
 }
+
+func (r *repository) UpdateCategory(ctx context.Context, id uint, obj entity.Category, opts ...repo.Options) (*entity.Category, error) {
+	q := r.db.WithContext(ctx)
+	c := entity.Category{ID: id}
+
+	// apply options
+	for _, opt := range opts {
+		q = opt(q)
+	}
+
+	return &c, q.Model(&c).Updates(obj).Error
+}

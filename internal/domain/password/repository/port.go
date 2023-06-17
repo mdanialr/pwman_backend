@@ -17,4 +17,7 @@ type Repository interface {
 	// CreateCategory create new entity.Category and return the newly created
 	// object along with assigned id as primary key.
 	CreateCategory(ctx context.Context, obj entity.Category) (*entity.Category, error)
+	// UpdateCategory update existing entity.Category that match given id and
+	// return the updated object.
+	UpdateCategory(ctx context.Context, id uint, obj entity.Category, opts ...repo.Options) (*entity.Category, error)
 }

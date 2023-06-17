@@ -15,6 +15,9 @@ type UseCase interface {
 	// SaveCategory create new category from given request including the binary
 	// files for both image and icon fields.
 	SaveCategory(ctx context.Context, req pw.RequestCategory) (*pw.Response, error)
+	// UpdateCategory update existing Category that match given id. Optionally
+	// replace either or both Image & Icon fields if provided.
+	UpdateCategory(ctx context.Context, id uint, req pw.RequestCategory) error
 	// SaveFile store given multipart to storage.Port then return filename of
 	// the stored file that's ready to be saved. Optionally append given
 	// prefix path too.

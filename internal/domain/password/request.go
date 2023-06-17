@@ -11,6 +11,8 @@ import (
 
 // RequestCategory standard request object that may be used in password domain.
 type RequestCategory struct {
+	// ID unique identifier of each Category. Should be required when updating.
+	ID uint `form:"id"`
 	// Name the name of category.
 	Name string `form:"name" validate:"required"`
 	// Image binary file for image field that should be parsed manually from
@@ -76,6 +78,19 @@ func (r *RequestCategory) ValidateCreate() validator.ValidationErrors {
 	return r.Validate()
 }
 
+// ValidateUpdate apply validation rules for RequestCategory in update
+// endpoint.
+func (r *RequestCategory) ValidateUpdate() validator.ValidationErrors {
+	v := validator.New()
+	v.RegisterStructValidation(r.updateRequiredValidation, RequestCategory{})
+	if err := v.Struct(r); err != nil {
+		return err.(validator.ValidationErrors)
+	}
+
+	// then add the basic validation
+	return r.Validate()
+}
+
 // NormalizeName transform value of Name field to upper-cased.
 func (r *RequestCategory) NormalizeName() {
 	r.Name = strings.ToUpper(r.Name)
@@ -119,5 +134,16 @@ func (r *RequestCategory) createRequiredValidation(sl validator.StructLevel) {
 	// required for field Icon
 	if req.Icon == nil {
 		sl.ReportError(req.Icon, "icon", "Icon", "required", "Icon")
+	}
+}
+
+// updateRequiredValidation custom required fields validation in update
+// endpoint.
+func (r *RequestCategory) updateRequiredValidation(sl validator.StructLevel) {
+	req := sl.Current().Interface().(RequestCategory)
+
+	// required for field ID
+	if req.ID < 1 {
+		sl.ReportError(req.ID, "id", "ID", "required", "ID")
 	}
 }

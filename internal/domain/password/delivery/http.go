@@ -17,6 +17,7 @@ func NewDelivery(app fiber.Router, conf *viper.Viper, uc pwUC.UseCase) {
 	api := app.Group("/category", md.JWT(conf))
 	api.Get("/", d.Index)
 	api.Post("/create", d.Create)
+	api.Post("/update", d.Update)
 }
 
 type delivery struct {
@@ -57,4 +58,25 @@ func (d *delivery) Create(c *fiber.Ctx) error {
 	}
 
 	return resp.Success(c, resp.WithData(res))
+}
+
+func (d *delivery) Update(c *fiber.Ctx) error {
+	var req pw.RequestCategory
+	c.BodyParser(&req)
+	// manually retrieve binary files
+	req.Icon, _ = c.FormFile("icon")
+	req.Image, _ = c.FormFile("image")
+
+	// validate the request
+	if err := req.ValidateUpdate(); err != nil {
+		return resp.Error(c, resp.WithErrValidation(err))
+	}
+	// normalize name field
+	req.NormalizeName()
+
+	if err := d.uc.UpdateCategory(c.Context(), req.ID, req); err != nil {
+		return resp.Error(c, resp.WithErr(err))
+	}
+
+	return resp.Success(c, resp.WithMsg("updated successfully"))
 }
