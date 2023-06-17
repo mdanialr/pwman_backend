@@ -9,7 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/mdanialr/pwman_backend/internal/app"
 	conf "github.com/mdanialr/pwman_backend/pkg/config"
 	gormLogger "github.com/mdanialr/pwman_backend/pkg/gorm"
@@ -21,6 +20,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	fiberLog "github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
