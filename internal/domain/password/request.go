@@ -54,7 +54,10 @@ func (r *Request) sanitizeQuerySort() string {
 
 // Validate apply validation rules for Request.
 func (r *Request) Validate() validator.ValidationErrors {
-	if err := validator.New().Struct(r); err != nil {
+	v := validator.New()
+	v.RegisterStructValidation(ImageValidation, Request{})
+
+	if err := v.Struct(r); err != nil {
 		return err.(validator.ValidationErrors)
 	}
 	return nil
@@ -63,4 +66,30 @@ func (r *Request) Validate() validator.ValidationErrors {
 // NormalizeName transform value of Name field to upper-cased.
 func (r *Request) NormalizeName() {
 	r.Name = strings.ToUpper(r.Name)
+}
+
+// acceptedImages list of accepted image content-type.
+var acceptedImages = map[string]any{
+	"image/jpeg": true,
+	"image/jpg":  true,
+	"image/png":  true,
+}
+
+// ImageValidation custom validation to make sure valid image extension are
+// sent.
+func ImageValidation(sl validator.StructLevel) {
+	req := sl.Current().Interface().(Request)
+
+	if req.Image != nil {
+		ext := req.Image.Header.Get("content-type")
+		if _, ok := acceptedImages[ext]; !ok {
+			sl.ReportError(req.Image, "image", "Image", "image", "Image")
+		}
+	}
+	if req.Icon != nil {
+		ext := req.Icon.Header.Get("content-type")
+		if _, ok := acceptedImages[ext]; !ok {
+			sl.ReportError(req.Icon, "icon", "Icon", "image", "Icon")
+		}
+	}
 }
