@@ -7,8 +7,8 @@ import (
 	paginate "github.com/mdanialr/pwman_backend/pkg/pagination"
 )
 
-// Response standard response object that may be used in password domain.
-type Response struct {
+// ResponseCategory standard response object that may be used in password domain.
+type ResponseCategory struct {
 	ID    uint   `json:"id"`
 	Name  string `json:"name"`
 	Image string `json:"image"`
@@ -18,10 +18,10 @@ type Response struct {
 // NewResponseFromEntity transform given entity.Category to Response. Also
 // prepend given prefix to both Image & Icon fields after cleaning the trailing
 // slash.
-func NewResponseFromEntity(cat entity.Category, prefix string) *Response {
+func NewResponseFromEntity(cat entity.Category, prefix string) *ResponseCategory {
 	pr := strings.TrimSuffix(prefix, "/") + "/"
 
-	r := &Response{
+	r := &ResponseCategory{
 		ID:    cat.ID,
 		Name:  cat.Name,
 		Image: pr + cat.ImagePath,
