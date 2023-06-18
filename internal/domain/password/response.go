@@ -7,6 +7,12 @@ import (
 	paginate "github.com/mdanialr/pwman_backend/pkg/pagination"
 )
 
+// responseAble generic type that holds all standard Response that can be
+// transformed from entity to IndexResponse.
+type responseAble interface {
+	ResponseCategory
+}
+
 // ResponseCategory standard response object that may be used in password domain.
 type ResponseCategory struct {
 	ID    uint   `json:"id"`
@@ -15,10 +21,10 @@ type ResponseCategory struct {
 	Icon  string `json:"icon"`
 }
 
-// NewResponseFromEntity transform given entity.Category to Response. Also
-// prepend given prefix to both Image & Icon fields after cleaning the trailing
-// slash.
-func NewResponseFromEntity(cat entity.Category, prefix string) *ResponseCategory {
+// NewResponseCategoryFromEntity transform given entity.Category to
+// ResponseCategory. Also prepend given prefix to both Image & Icon fields
+// after cleaning the trailing slash.
+func NewResponseCategoryFromEntity(cat entity.Category, prefix string) *ResponseCategory {
 	pr := strings.TrimSuffix(prefix, "/") + "/"
 
 	r := &ResponseCategory{
@@ -31,20 +37,20 @@ func NewResponseFromEntity(cat entity.Category, prefix string) *ResponseCategory
 }
 
 // IndexResponse response that's used in use case Index.
-type IndexResponse struct {
-	Data       []*Response `json:"-"`
+type IndexResponse[T responseAble] struct {
+	Data       []*T `json:"-"`
 	Pagination *paginate.M
 }
 
 // NewIndexResponseFromEntity create new pointer IndexResponse from given slices
 // of entity.Category. Also prepend given prefix to both Image & Icon fields
 // after cleaning the trailing slash.
-func NewIndexResponseFromEntity(cats []*entity.Category, prefix string) *IndexResponse {
-	var res []*Response
+func NewIndexResponseCategoryFromEntity(cats []*entity.Category, prefix string) *IndexResponse[ResponseCategory] {
+	var res []*ResponseCategory
 
 	for _, cat := range cats {
-		res = append(res, NewResponseFromEntity(*cat, prefix))
+		res = append(res, NewResponseCategoryFromEntity(*cat, prefix))
 	}
 
-	return &IndexResponse{Data: res}
+	return &IndexResponse[ResponseCategory]{Data: res}
 }

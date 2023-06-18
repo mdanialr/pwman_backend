@@ -11,10 +11,10 @@ import (
 type UseCase interface {
 	// IndexCategory retrieve all category information including the url to
 	// both image and icon.
-	IndexCategory(ctx context.Context, req pw.RequestCategory) (*pw.IndexResponse, error)
+	IndexCategory(ctx context.Context, req pw.RequestCategory) (*pw.IndexResponse[pw.ResponseCategory], error)
 	// SaveCategory create new category from given request including the binary
 	// files for both image and icon fields.
-	SaveCategory(ctx context.Context, req pw.RequestCategory) (*pw.Response, error)
+	SaveCategory(ctx context.Context, req pw.RequestCategory) (*pw.ResponseCategory, error)
 	// UpdateCategory update existing Category that match given id. Optionally
 	// replace either or both Image & Icon fields if provided.
 	UpdateCategory(ctx context.Context, id uint, req pw.RequestCategory) error

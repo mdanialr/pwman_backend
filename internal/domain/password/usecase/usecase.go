@@ -33,7 +33,7 @@ type useCase struct {
 	repo pw.Repository
 }
 
-func (u *useCase) IndexCategory(ctx context.Context, req password.RequestCategory) (*password.IndexResponse, error) {
+func (u *useCase) IndexCategory(ctx context.Context, req password.RequestCategory) (*password.IndexResponse[password.ResponseCategory], error) {
 	// set up repo options
 	opts := []repo.Options{repo.Paginate(&req.M), repo.Order(req.Order + " " + req.Sort)}
 	// additionally add search option
@@ -50,14 +50,14 @@ func (u *useCase) IndexCategory(ctx context.Context, req password.RequestCategor
 	}
 
 	// prepare the response to contain the actual data and the pagination info
-	resp := password.NewIndexResponseFromEntity(cats, u.conf.GetString("storage.url"))
+	resp := password.NewIndexResponseCategoryFromEntity(cats, u.conf.GetString("storage.url"))
 	resp.Pagination = &req.M
 	resp.Pagination.Paginate()
 
 	return resp, nil
 }
 
-func (u *useCase) SaveCategory(ctx context.Context, req password.RequestCategory) (*password.Response, error) {
+func (u *useCase) SaveCategory(ctx context.Context, req password.RequestCategory) (*password.ResponseCategory, error) {
 	// make sure given category name not used yet in data store
 	cond := "name = '" + req.Name + "'"
 	c, _ := u.repo.GetCategoryByID(ctx, 0, repo.Cols("id"), repo.Cons(cond))
@@ -92,7 +92,7 @@ func (u *useCase) SaveCategory(ctx context.Context, req password.RequestCategory
 	}
 
 	// adapt to appropriate response
-	resp := password.NewResponseFromEntity(*newObj, u.conf.GetString("storage.url"))
+	resp := password.NewResponseCategoryFromEntity(*newObj, u.conf.GetString("storage.url"))
 
 	return resp, nil
 }
