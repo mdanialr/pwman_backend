@@ -119,6 +119,21 @@ func (u *useCase) UpdatePassword(ctx context.Context, id uint, req password.Requ
 	return nil
 }
 
+func (u *useCase) DeletePassword(ctx context.Context, id uint) error {
+	// make sure given id does really exist in repo
+	p, err := u.repo.GetPasswordByID(ctx, id, repo.Cols("id"))
+	if err != nil {
+		return stderr.NewUCErr(cons.InvalidPayload, cons.ErrNotFound)
+	}
+
+	if err = u.repo.DeletePassword(ctx, p.ID); err != nil {
+		u.log.Error(help.Pad("failed to delete existing password with id:", strconv.Itoa(int(p.ID)), "and err:", err.Error()))
+		return stderr.NewUCErr(cons.DepsErr, cons.ErrInternalServer)
+	}
+
+	return nil
+}
+
 func (u *useCase) IndexCategory(ctx context.Context, req password.RequestCategory) (*password.IndexResponse[password.ResponseCategory], error) {
 	// set up repo options
 	opts := []repo.Options{repo.Paginate(&req.M), repo.Order(req.Order + " " + req.Sort)}

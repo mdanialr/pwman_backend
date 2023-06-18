@@ -37,8 +37,19 @@ func (r *Request) ValidateUpdate() validator.ValidationErrors {
 	return r.Validate()
 }
 
-// updateRequiredValidation custom required fields validation in update
+// ValidateDelete apply validation rules for RequestCategory in delete
 // endpoint.
+func (r *Request) ValidateDelete() validator.ValidationErrors {
+	v := validator.New()
+	v.RegisterStructValidation(r.updateRequiredValidation, Request{})
+	if err := v.StructExcept(r, "Username", "Password", "Category"); err != nil {
+		return err.(validator.ValidationErrors)
+	}
+	return nil
+}
+
+// updateRequiredValidation custom required fields validation in update and
+// delete endpoint.
 func (r *Request) updateRequiredValidation(sl validator.StructLevel) {
 	req := sl.Current().Interface().(Request)
 

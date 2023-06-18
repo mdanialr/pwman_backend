@@ -17,6 +17,9 @@ type UseCase interface {
 	SavePassword(ctx context.Context, req pw.Request) (*pw.Response, error)
 	// UpdatePassword update existing Password that match given id.
 	UpdatePassword(ctx context.Context, id uint, req pw.Request) error
+	// DeletePassword delete existing Password that match given id. Make sure
+	// that the given id does really exist in data source first.
+	DeletePassword(ctx context.Context, id uint) error
 	// IndexCategory retrieve all category information including the url to
 	// both image and icon.
 	IndexCategory(ctx context.Context, req pw.RequestCategory) (*pw.IndexResponse[pw.ResponseCategory], error)

@@ -61,6 +61,10 @@ func (r *repository) UpdatePassword(ctx context.Context, id uint, obj entity.Pas
 	return &p, q.Model(&p).Updates(obj).Error
 }
 
+func (r *repository) DeletePassword(ctx context.Context, id uint) error {
+	return r.db.WithContext(ctx).Delete(&entity.Password{ID: id}).Error
+}
+
 func (r *repository) GetCategoryByID(ctx context.Context, id uint, opts ...repo.Options) (*entity.Category, error) {
 	q := r.db.WithContext(ctx)
 	c := entity.Category{ID: id}

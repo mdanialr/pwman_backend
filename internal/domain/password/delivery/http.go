@@ -23,6 +23,7 @@ func NewDelivery(app fiber.Router, conf *viper.Viper, uc pwUC.UseCase) {
 	api.Get("/", d.Index)
 	api.Post("/create", d.Create)
 	api.Post("/update", d.Update)
+	api.Post("/delete", d.Delete)
 }
 
 type delivery struct {
@@ -74,6 +75,22 @@ func (d *delivery) Update(c *fiber.Ctx) error {
 	}
 
 	return resp.Success(c, resp.WithMsg("updated successfully"))
+}
+
+func (d *delivery) Delete(c *fiber.Ctx) error {
+	var req pw.Request
+	c.BodyParser(&req)
+
+	// validate the request
+	if err := req.ValidateDelete(); err != nil {
+		return resp.Error(c, resp.WithErrValidation(err))
+	}
+
+	if err := d.uc.DeletePassword(c.Context(), req.ID); err != nil {
+		return resp.Error(c, resp.WithErr(err))
+	}
+
+	return resp.Success(c, resp.WithMsg("deleted successfully"))
 }
 
 func (d *delivery) IndexCategory(c *fiber.Ctx) error {

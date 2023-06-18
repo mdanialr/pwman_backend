@@ -20,6 +20,8 @@ type Repository interface {
 	// UpdatePassword update existing entity.Password that match given id and
 	// return the updated object.
 	UpdatePassword(ctx context.Context, id uint, obj entity.Password, opts ...repo.Options) (*entity.Password, error)
+	// DeletePassword soft delete entity.Password that match given id.
+	DeletePassword(ctx context.Context, id uint) error
 	// GetCategoryByID retrieve an entity.Category by given id.
 	GetCategoryByID(ctx context.Context, id uint, opts ...repo.Options) (*entity.Category, error)
 	// FindCategories retrieve all entity.Category that match given condition
