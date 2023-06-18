@@ -14,17 +14,17 @@ import (
 func NewDelivery(app fiber.Router, conf *viper.Viper, uc pwUC.UseCase) {
 	d := &delivery{uc: uc}
 
-	api := app.Group("/category", md.JWT(conf))
-	api.Get("/", d.Index)
-	api.Post("/create", d.Create)
-	api.Post("/update", d.Update)
+	apiCat := app.Group("/category", md.JWT(conf))
+	apiCat.Get("/", d.IndexCategory)
+	apiCat.Post("/create", d.CreateCategory)
+	apiCat.Post("/update", d.UpdateCategory)
 }
 
 type delivery struct {
 	uc pwUC.UseCase
 }
 
-func (d *delivery) Index(c *fiber.Ctx) error {
+func (d *delivery) IndexCategory(c *fiber.Ctx) error {
 	var req pw.RequestCategory
 	c.QueryParser(&req)
 	// set up the query order and sort
@@ -38,7 +38,7 @@ func (d *delivery) Index(c *fiber.Ctx) error {
 	return resp.Success(c, resp.WithData(res.Data), resp.WithMeta(res.Pagination))
 }
 
-func (d *delivery) Create(c *fiber.Ctx) error {
+func (d *delivery) CreateCategory(c *fiber.Ctx) error {
 	var req pw.RequestCategory
 	c.BodyParser(&req)
 	// manually retrieve binary files
@@ -60,7 +60,7 @@ func (d *delivery) Create(c *fiber.Ctx) error {
 	return resp.Success(c, resp.WithData(res))
 }
 
-func (d *delivery) Update(c *fiber.Ctx) error {
+func (d *delivery) UpdateCategory(c *fiber.Ctx) error {
 	var req pw.RequestCategory
 	c.BodyParser(&req)
 	// manually retrieve binary files
