@@ -10,6 +10,7 @@ import (
 // Request standard request object that may be used in password domain.
 type Request struct {
 	pagination
+	ID       uint   `json:"id"`
 	Username string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`
 	Category uint   `json:"category" validate:"required"`
@@ -21,6 +22,30 @@ func (r *Request) Validate() validator.ValidationErrors {
 		return err.(validator.ValidationErrors)
 	}
 	return nil
+}
+
+// ValidateUpdate apply validation rules for RequestCategory in update
+// endpoint.
+func (r *Request) ValidateUpdate() validator.ValidationErrors {
+	v := validator.New()
+	v.RegisterStructValidation(r.updateRequiredValidation, Request{})
+	if err := v.Struct(r); err != nil {
+		return err.(validator.ValidationErrors)
+	}
+
+	// then add the basic validation
+	return r.Validate()
+}
+
+// updateRequiredValidation custom required fields validation in update
+// endpoint.
+func (r *Request) updateRequiredValidation(sl validator.StructLevel) {
+	req := sl.Current().Interface().(Request)
+
+	// required for field ID
+	if req.ID < 1 {
+		sl.ReportError(req.ID, "id", "ID", "required", "ID")
+	}
 }
 
 // RequestCategory standard request object that may be used in password domain.

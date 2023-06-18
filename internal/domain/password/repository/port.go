@@ -17,6 +17,9 @@ type Repository interface {
 	// CreatePassword create new entity.Password and return the newly created
 	// object along with assigned id as primary key.
 	CreatePassword(ctx context.Context, obj entity.Password) (*entity.Password, error)
+	// UpdatePassword update existing entity.Password that match given id and
+	// return the updated object.
+	UpdatePassword(ctx context.Context, id uint, obj entity.Password, opts ...repo.Options) (*entity.Password, error)
 	// GetCategoryByID retrieve an entity.Category by given id.
 	GetCategoryByID(ctx context.Context, id uint, opts ...repo.Options) (*entity.Category, error)
 	// FindCategories retrieve all entity.Category that match given condition

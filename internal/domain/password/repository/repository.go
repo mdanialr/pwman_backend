@@ -49,6 +49,18 @@ func (r *repository) CreatePassword(ctx context.Context, obj entity.Password) (*
 	return &obj, q.Create(&obj).Error
 }
 
+func (r *repository) UpdatePassword(ctx context.Context, id uint, obj entity.Password, opts ...repo.Options) (*entity.Password, error) {
+	q := r.db.WithContext(ctx)
+	p := entity.Password{ID: id}
+
+	// apply options
+	for _, opt := range opts {
+		q = opt(q)
+	}
+
+	return &p, q.Model(&p).Updates(obj).Error
+}
+
 func (r *repository) GetCategoryByID(ctx context.Context, id uint, opts ...repo.Options) (*entity.Category, error) {
 	q := r.db.WithContext(ctx)
 	c := entity.Category{ID: id}

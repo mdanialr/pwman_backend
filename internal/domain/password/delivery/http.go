@@ -22,6 +22,7 @@ func NewDelivery(app fiber.Router, conf *viper.Viper, uc pwUC.UseCase) {
 	api := app.Group("/password", md.JWT(conf))
 	api.Get("/", d.Index)
 	api.Post("/create", d.Create)
+	api.Post("/update", d.Update)
 }
 
 type delivery struct {
@@ -57,6 +58,22 @@ func (d *delivery) Create(c *fiber.Ctx) error {
 	}
 
 	return resp.Success(c, resp.WithData(res))
+}
+
+func (d *delivery) Update(c *fiber.Ctx) error {
+	var req pw.Request
+	c.BodyParser(&req)
+
+	// validate the request
+	if err := req.ValidateUpdate(); err != nil {
+		return resp.Error(c, resp.WithErrValidation(err))
+	}
+
+	if err := d.uc.UpdatePassword(c.Context(), req.ID, req); err != nil {
+		return resp.Error(c, resp.WithErr(err))
+	}
+
+	return resp.Success(c, resp.WithMsg("updated successfully"))
 }
 
 func (d *delivery) IndexCategory(c *fiber.Ctx) error {

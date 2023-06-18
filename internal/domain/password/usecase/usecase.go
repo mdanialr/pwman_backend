@@ -92,6 +92,33 @@ func (u *useCase) SavePassword(ctx context.Context, req password.Request) (*pass
 	return password.NewResponseFromEntity(*newObj), nil
 }
 
+func (u *useCase) UpdatePassword(ctx context.Context, id uint, req password.Request) error {
+	// make sure given id does really exist in repo
+	p, err := u.repo.GetPasswordByID(ctx, id)
+	if err != nil {
+		return stderr.NewUCErr(cons.InvalidPayload, cons.ErrNotFound)
+	}
+
+	// if new category is different then make sure that's exist in repo
+	if req.Category != p.CategoryID {
+		if _, err = u.repo.GetCategoryByID(ctx, req.Category); err != nil {
+			return stderr.NewUCErr(cons.InvalidPayload, cons.ErrNotFound)
+		}
+	}
+
+	newP := entity.Password{
+		Username:   req.Username,
+		Password:   req.Password,
+		CategoryID: req.Category,
+	}
+	if _, err = u.repo.UpdatePassword(ctx, p.ID, newP); err != nil {
+		u.log.Error(help.Pad("failed to update existing password with id:", strconv.Itoa(int(p.ID)), "and err:", err.Error()))
+		return stderr.NewUCErr(cons.DepsErr, cons.ErrInternalServer)
+	}
+
+	return nil
+}
+
 func (u *useCase) IndexCategory(ctx context.Context, req password.RequestCategory) (*password.IndexResponse[password.ResponseCategory], error) {
 	// set up repo options
 	opts := []repo.Options{repo.Paginate(&req.M), repo.Order(req.Order + " " + req.Sort)}
