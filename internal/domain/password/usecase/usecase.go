@@ -158,7 +158,11 @@ func (u *useCase) SaveCategory(ctx context.Context, req password.RequestCategory
 
 func (u *useCase) UpdateCategory(ctx context.Context, id uint, req password.RequestCategory) error {
 	// retrieve category from repo using given id
-	c, _ := u.repo.GetCategoryByID(ctx, id)
+	c, err := u.repo.GetCategoryByID(ctx, id)
+	if err != nil {
+		// throw error if category not found
+		return stderr.NewUCErr(cons.InvalidPayload, cons.ErrNotFound)
+	}
 	// do additional validation if the name from request and from repo is different
 	if c.Name != req.Name {
 		// make sure it's unique and not taken yet
