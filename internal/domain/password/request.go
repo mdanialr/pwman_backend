@@ -10,6 +10,17 @@ import (
 // Request standard request object that may be used in password domain.
 type Request struct {
 	pagination
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
+	Category uint   `json:"category" validate:"required"`
+}
+
+// Validate apply validation rules for Request.
+func (r *Request) Validate() validator.ValidationErrors {
+	if err := validator.New().Struct(r); err != nil {
+		return err.(validator.ValidationErrors)
+	}
+	return nil
 }
 
 // RequestCategory standard request object that may be used in password domain.

@@ -70,6 +70,28 @@ func (u *useCase) IndexPassword(ctx context.Context, req password.Request) (*pas
 	return resp, nil
 }
 
+func (u *useCase) SavePassword(ctx context.Context, req password.Request) (*password.Response, error) {
+	// make sure given category id does really exist in repo
+	_, err := u.repo.GetCategoryByID(ctx, req.Category)
+	if err != nil {
+		return nil, stderr.NewUCErr(cons.InvalidPayload, cons.ErrNotFound)
+	}
+
+	obj := entity.Password{
+		Username:   req.Username,
+		Password:   req.Password,
+		CategoryID: req.Category,
+	}
+	newObj, err := u.repo.CreatePassword(ctx, obj)
+	if err != nil {
+		u.log.Error(help.Pad("failed to create new password:", err.Error()))
+		return nil, stderr.NewUCErr(cons.DepsErr, cons.ErrInternalServer)
+	}
+
+	// adapt to appropriate response
+	return password.NewResponseFromEntity(*newObj), nil
+}
+
 func (u *useCase) IndexCategory(ctx context.Context, req password.RequestCategory) (*password.IndexResponse[password.ResponseCategory], error) {
 	// set up repo options
 	opts := []repo.Options{repo.Paginate(&req.M), repo.Order(req.Order + " " + req.Sort)}

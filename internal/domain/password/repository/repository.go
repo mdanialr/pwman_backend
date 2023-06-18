@@ -43,6 +43,12 @@ func (r *repository) FindPassword(ctx context.Context, opts ...repo.Options) ([]
 	return p, q.Find(&p).Error
 }
 
+func (r *repository) CreatePassword(ctx context.Context, obj entity.Password) (*entity.Password, error) {
+	q := r.db.WithContext(ctx)
+
+	return &obj, q.Create(&obj).Error
+}
+
 func (r *repository) GetCategoryByID(ctx context.Context, id uint, opts ...repo.Options) (*entity.Category, error) {
 	q := r.db.WithContext(ctx)
 	c := entity.Category{ID: id}
