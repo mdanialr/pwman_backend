@@ -32,6 +32,7 @@ func Run(isSeeder, isDrop bool) {
 		db.Migrator().DropTable(
 			&entity.RegisteredOTP{},
 			&entity.Category{},
+			&entity.Password{},
 		)
 		fmt.Println("Done Dropping All Tables")
 	}
@@ -41,6 +42,7 @@ func Run(isSeeder, isDrop bool) {
 	db.Migrator().AutoMigrate(
 		&entity.RegisteredOTP{},
 		&entity.Category{},
+		&entity.Password{},
 	)
 	fmt.Println("Done Creating All Tables")
 

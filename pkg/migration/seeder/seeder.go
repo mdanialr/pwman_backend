@@ -30,4 +30,8 @@ var seeders = []struct {
 		Name: "Category Entity",
 		Run:  category,
 	},
+	{
+		Name: "Password Entity",
+		Run:  password,
+	},
 }
