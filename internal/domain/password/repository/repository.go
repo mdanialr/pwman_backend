@@ -5,6 +5,7 @@ import (
 
 	"github.com/mdanialr/pwman_backend/internal/entity"
 	repo "github.com/mdanialr/pwman_backend/internal/repository"
+
 	"gorm.io/gorm"
 )
 
@@ -16,6 +17,30 @@ func NewRepository(db *gorm.DB) Repository {
 
 type repository struct {
 	db *gorm.DB
+}
+
+func (r *repository) GetPasswordByID(ctx context.Context, id uint, opts ...repo.Options) (*entity.Password, error) {
+	q := r.db.WithContext(ctx)
+	p := entity.Password{ID: id}
+
+	// apply options
+	for _, opt := range opts {
+		q = opt(q)
+	}
+
+	return &p, q.First(&p).Error
+}
+
+func (r *repository) FindPassword(ctx context.Context, opts ...repo.Options) ([]*entity.Password, error) {
+	q := r.db.WithContext(ctx).Model(&entity.Password{})
+	var p []*entity.Password
+
+	// apply options
+	for _, opt := range opts {
+		q = opt(q)
+	}
+
+	return p, q.Find(&p).Error
 }
 
 func (r *repository) GetCategoryByID(ctx context.Context, id uint, opts ...repo.Options) (*entity.Category, error) {

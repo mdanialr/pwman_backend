@@ -18,10 +18,27 @@ func NewDelivery(app fiber.Router, conf *viper.Viper, uc pwUC.UseCase) {
 	apiCat.Get("/", d.IndexCategory)
 	apiCat.Post("/create", d.CreateCategory)
 	apiCat.Post("/update", d.UpdateCategory)
+
+	api := app.Group("/password", md.JWT(conf))
+	api.Get("/", d.Index)
 }
 
 type delivery struct {
 	uc pwUC.UseCase
+}
+
+func (d *delivery) Index(c *fiber.Ctx) error {
+	var req pw.Request
+	c.QueryParser(&req)
+	// set up the query order and sort
+	req.SetQuery()
+
+	res, err := d.uc.IndexPassword(c.Context(), req)
+	if err != nil {
+		return resp.Error(c, resp.WithErr(err))
+	}
+
+	return resp.Success(c, resp.WithData(res.Data), resp.WithMeta(res.Pagination))
 }
 
 func (d *delivery) IndexCategory(c *fiber.Ctx) error {

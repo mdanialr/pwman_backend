@@ -9,6 +9,11 @@ import (
 
 // Repository signature that's used in password domain for repository layer.
 type Repository interface {
+	// GetPasswordByID retrieve an entity.Password by given id.
+	GetPasswordByID(ctx context.Context, id uint, opts ...repo.Options) (*entity.Password, error)
+	// FindPassword retrieve all entity.Password that match given condition in
+	// opts.
+	FindPassword(ctx context.Context, opts ...repo.Options) ([]*entity.Password, error)
 	// GetCategoryByID retrieve an entity.Category by given id.
 	GetCategoryByID(ctx context.Context, id uint, opts ...repo.Options) (*entity.Category, error)
 	// FindCategories retrieve all entity.Category that match given condition

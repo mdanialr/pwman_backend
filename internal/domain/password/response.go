@@ -10,7 +10,24 @@ import (
 // responseAble generic type that holds all standard Response that can be
 // transformed from entity to IndexResponse.
 type responseAble interface {
-	ResponseCategory
+	ResponseCategory | Response
+}
+
+// Response standard response object that may be used in password domain.
+type Response struct {
+	ID         uint   `json:"id"`
+	Username   string `json:"username"`
+	CategoryID uint   `json:"category_id"`
+}
+
+// NewResponseFromEntity transform given entity.Password to Response.
+func NewResponseFromEntity(pw entity.Password) *Response {
+	r := &Response{
+		ID:         pw.ID,
+		Username:   pw.Username,
+		CategoryID: pw.CategoryID,
+	}
+	return r
 }
 
 // ResponseCategory standard response object that may be used in password domain.
@@ -43,6 +60,18 @@ type IndexResponse[T responseAble] struct {
 }
 
 // NewIndexResponseFromEntity create new pointer IndexResponse from given slices
+// of entity.Password.
+func NewIndexResponseFromEntity(pw []*entity.Password) *IndexResponse[Response] {
+	var res []*Response
+
+	for _, p := range pw {
+		res = append(res, NewResponseFromEntity(*p))
+	}
+
+	return &IndexResponse[Response]{Data: res}
+}
+
+// NewIndexResponseCategoryFromEntity create new pointer IndexResponse from given slices
 // of entity.Category. Also prepend given prefix to both Image & Icon fields
 // after cleaning the trailing slash.
 func NewIndexResponseCategoryFromEntity(cats []*entity.Category, prefix string) *IndexResponse[ResponseCategory] {

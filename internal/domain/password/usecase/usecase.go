@@ -33,6 +33,43 @@ type useCase struct {
 	repo pw.Repository
 }
 
+func (u *useCase) IndexPassword(ctx context.Context, req password.Request) (*password.IndexResponse[password.Response], error) {
+	// set up repo options
+	opts := []repo.Options{repo.Paginate(&req.M), repo.Order(req.Order + " " + req.Sort)}
+	// additionally add search option
+	if req.Search != "" {
+		q := "username ILIKE '%" + req.Search + "%'" // search in password
+		opts = append(opts, repo.Cons(q))
+
+		// query for all available category names
+		catQ := "name ILIKE '%" + req.Search + "%'"
+		cats, err := u.repo.FindCategories(ctx, repo.Cons(catQ))
+		if err != nil {
+			// it's optional so just log without blocking for any error
+			u.log.Error(help.Pad("failed to find categories with name:", req.Search, "and err:", err.Error()))
+		}
+		// optionally search by category id(s)
+		if ids := u.pluckCategoriesID(cats); ids != "" {
+			q2 := "category_id IN (" + ids + ")" // search by category id(s)
+			opts = append(opts, repo.Ors(q2))
+		}
+	}
+
+	// search for all passwords that matched given conditions
+	pws, err := u.repo.FindPassword(ctx, opts...)
+	if err != nil {
+		u.log.Error(help.Pad("failed to retrieve passwords:", err.Error()))
+		return nil, stderr.NewUCErr(cons.DepsErr, cons.ErrInternalServer)
+	}
+
+	// prepare the response to contain the actual data and the pagination info
+	resp := password.NewIndexResponseFromEntity(pws)
+	resp.Pagination = &req.M
+	resp.Pagination.Paginate()
+
+	return resp, nil
+}
+
 func (u *useCase) IndexCategory(ctx context.Context, req password.RequestCategory) (*password.IndexResponse[password.ResponseCategory], error) {
 	// set up repo options
 	opts := []repo.Options{repo.Paginate(&req.M), repo.Order(req.Order + " " + req.Sort)}
@@ -188,4 +225,15 @@ func (u *useCase) removeOldMedia(c entity.Category, fields ...string) {
 			u.RemoveFile(c.IconPath)
 		}
 	}
+}
+
+// pluckCategoriesID pluck ids from given a bunch of entity.Category then
+// join them using , as the separator. e.g '1,2,3'
+func (u *useCase) pluckCategoriesID(cats []*entity.Category) string {
+	var ids []string
+
+	for _, cat := range cats {
+		ids = append(ids, strconv.Itoa(int(cat.ID)))
+	}
+	return strings.Join(ids, ",")
 }

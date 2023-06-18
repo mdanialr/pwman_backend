@@ -9,6 +9,9 @@ import (
 
 // UseCase signature that's used in password domain for use case layer.
 type UseCase interface {
+	// IndexPassword retrieve all passwords information but omit password from
+	// response.
+	IndexPassword(ctx context.Context, req pw.Request) (*pw.IndexResponse[pw.Response], error)
 	// IndexCategory retrieve all category information including the url to
 	// both image and icon.
 	IndexCategory(ctx context.Context, req pw.RequestCategory) (*pw.IndexResponse[pw.ResponseCategory], error)
