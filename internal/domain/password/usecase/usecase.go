@@ -254,6 +254,34 @@ func (u *useCase) UpdateCategory(ctx context.Context, id uint, req password.Requ
 	return nil
 }
 
+func (u *useCase) DeleteCategory(ctx context.Context, id uint) error {
+	// make sure given id does really exist in repo
+	c, err := u.repo.GetCategoryByID(ctx, id)
+	if err != nil {
+		return stderr.NewUCErr(cons.InvalidPayload, cons.ErrNotFound)
+	}
+
+	// make sure no Password still attached to this category
+	cats, err := u.repo.FindPassword(ctx, repo.Cons("category_id = "+strconv.Itoa(int(c.ID))))
+	if err != nil {
+		u.log.Error(help.Pad("failed to retrieve categories:", err.Error()))
+		return stderr.NewUCErr(cons.DepsErr, cons.ErrInternalServer)
+	}
+	if len(cats) > 0 {
+		return stderr.NewUCErr(cons.InvalidPayload, cons.ErrDataInUse)
+	}
+
+	if err = u.repo.DeleteCategory(ctx, c.ID); err != nil {
+		u.log.Error(help.Pad("failed to delete existing category with id:", strconv.Itoa(int(c.ID)), "and err:", err.Error()))
+		return stderr.NewUCErr(cons.DepsErr, cons.ErrInternalServer)
+	}
+
+	// lastly remove the old image & icon
+	go u.removeOldMedia(*c, "image_path", "icon_path")
+
+	return nil
+}
+
 func (u *useCase) SaveFile(f *multipart.FileHeader, prefix ...string) (string, error) {
 	fl, err := f.Open()
 	if err != nil {

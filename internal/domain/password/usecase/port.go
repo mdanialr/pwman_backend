@@ -29,6 +29,10 @@ type UseCase interface {
 	// UpdateCategory update existing Category that match given id. Optionally
 	// replace either or both Image & Icon fields if provided.
 	UpdateCategory(ctx context.Context, id uint, req pw.RequestCategory) error
+	// DeleteCategory delete existing Category that match given id. Make sure
+	// that no Password that's still has relation to given Category. Finally
+	// remove all attached Image & Icon.
+	DeleteCategory(ctx context.Context, id uint) error
 	// SaveFile store given multipart to storage.Port then return filename of
 	// the stored file that's ready to be saved. Optionally append given
 	// prefix path too.

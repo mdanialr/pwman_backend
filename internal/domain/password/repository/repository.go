@@ -106,3 +106,7 @@ func (r *repository) UpdateCategory(ctx context.Context, id uint, obj entity.Cat
 
 	return &c, q.Model(&c).Updates(obj).Error
 }
+
+func (r *repository) DeleteCategory(ctx context.Context, id uint) error {
+	return r.db.WithContext(ctx).Delete(&entity.Category{ID: id}).Error
+}

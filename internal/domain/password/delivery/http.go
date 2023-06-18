@@ -18,6 +18,7 @@ func NewDelivery(app fiber.Router, conf *viper.Viper, uc pwUC.UseCase) {
 	apiCat.Get("/", d.IndexCategory)
 	apiCat.Post("/create", d.CreateCategory)
 	apiCat.Post("/update", d.UpdateCategory)
+	apiCat.Post("/delete", d.DeleteCategory)
 
 	api := app.Group("/password", md.JWT(conf))
 	api.Get("/", d.Index)
@@ -148,4 +149,20 @@ func (d *delivery) UpdateCategory(c *fiber.Ctx) error {
 	}
 
 	return resp.Success(c, resp.WithMsg("updated successfully"))
+}
+
+func (d *delivery) DeleteCategory(c *fiber.Ctx) error {
+	var req pw.RequestCategory
+	c.BodyParser(&req)
+
+	// validate the request
+	if err := req.ValidateDelete(); err != nil {
+		return resp.Error(c, resp.WithErrValidation(err))
+	}
+
+	if err := d.uc.DeleteCategory(c.Context(), req.ID); err != nil {
+		return resp.Error(c, resp.WithErr(err))
+	}
+
+	return resp.Success(c, resp.WithMsg("deleted successfully"))
 }

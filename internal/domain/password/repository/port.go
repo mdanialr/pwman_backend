@@ -33,4 +33,6 @@ type Repository interface {
 	// UpdateCategory update existing entity.Category that match given id and
 	// return the updated object.
 	UpdateCategory(ctx context.Context, id uint, obj entity.Category, opts ...repo.Options) (*entity.Category, error)
+	// DeleteCategory soft delete entity.Category that match given id.
+	DeleteCategory(ctx context.Context, id uint) error
 }

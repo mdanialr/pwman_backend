@@ -111,6 +111,17 @@ func (r *RequestCategory) ValidateUpdate() validator.ValidationErrors {
 	return r.Validate()
 }
 
+// ValidateDelete apply validation rules for RequestCategory in delete
+// endpoint.
+func (r *RequestCategory) ValidateDelete() validator.ValidationErrors {
+	v := validator.New()
+	v.RegisterStructValidation(r.updateRequiredValidation, RequestCategory{})
+	if err := v.StructExcept(r, "Name"); err != nil {
+		return err.(validator.ValidationErrors)
+	}
+	return nil
+}
+
 // NormalizeName transform value of Name field to upper-cased.
 func (r *RequestCategory) NormalizeName() {
 	r.Name = strings.ToUpper(r.Name)
@@ -157,8 +168,8 @@ func (r *RequestCategory) createRequiredValidation(sl validator.StructLevel) {
 	}
 }
 
-// updateRequiredValidation custom required fields validation in update
-// endpoint.
+// updateRequiredValidation custom required fields validation in update and
+// delete endpoints.
 func (r *RequestCategory) updateRequiredValidation(sl validator.StructLevel) {
 	req := sl.Current().Interface().(RequestCategory)
 
