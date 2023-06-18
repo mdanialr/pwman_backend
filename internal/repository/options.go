@@ -50,6 +50,21 @@ func Cons(cons ...string) Options {
 	}
 }
 
+// Ors add query Where for each given cons. Each given conditions will be
+// combined by GORM using OR.
+//
+// Example:
+//
+//	repo.Ors("id IS NULL"), repo.Ors("name IS NOT NULL")
+func Ors(cons ...string) Options {
+	return func(db *gorm.DB) *gorm.DB {
+		for _, con := range cons {
+			db = db.Or(con)
+		}
+		return db
+	}
+}
+
 // EagerLoad simple preload/eager loading the given field/relation name without
 // any special condition which means use the default relation as the condition.
 //
