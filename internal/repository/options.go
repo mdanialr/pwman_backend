@@ -65,6 +65,27 @@ func Ors(cons ...string) Options {
 	}
 }
 
+// Trx wrap given function inside database transaction. Commit the transaction
+// if no error returned by function otherwise will do roll back instead.
+//
+// Example:
+//
+//	 trx := repo.Trx(func(db *gorm.DB) error {
+//			// do some changes here.
+//			// just return error and will be rolled back automatically
+//			// if no error returned then commit will be executed instead
+//			return nil
+//	 })
+func Trx(fn func(db *gorm.DB) error) Options {
+	return func(db *gorm.DB) *gorm.DB {
+		tx := db.Begin()
+		if err := fn(tx); err != nil {
+			return tx.Rollback()
+		}
+		return tx.Commit()
+	}
+}
+
 // EagerLoad simple preload/eager loading the given field/relation name without
 // any special condition which means use the default relation as the condition.
 //
