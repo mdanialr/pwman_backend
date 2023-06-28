@@ -12,6 +12,7 @@ import (
 type Options func(*gorm.DB) *gorm.DB
 
 // Cols add query Select.
+//
 // Example:
 //
 //	repo.Cols("id", "created_at", "updated_at")
