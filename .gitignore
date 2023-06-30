@@ -2,3 +2,6 @@
 app.yml
 .air.toml
 tmp/
+
+# testing related stuff - mock dirs
+mocks/
