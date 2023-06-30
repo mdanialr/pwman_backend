@@ -166,7 +166,7 @@ func setupZapLogger(conf *viper.Viper) (*zap.Logger, error) {
 		zapConfig.Encoding = "console"
 	case "json":
 		zapConfig.Encoding = "json"
-		logPath := conf.GetString("zap.path")
+		logPath := strings.TrimSuffix(conf.GetString("zap.path"), "/") + "/log"
 		// make sure the output log path is not empty
 		if logPath == "" {
 			return nil, errors.New("zap.path is required when zap.log is json")
