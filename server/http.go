@@ -90,10 +90,7 @@ func HTTP() {
 		monRefreshRate = 2 // set default to 2 seconds
 	}
 	// init fiber monitor metrics config
-	monConf := monitor.Config{
-		Title:   "Password Manager API Metrics",
-		Refresh: time.Duration(monRefreshRate) * time.Second,
-	}
+	monConf := setupFiberMetricsMonitor(v)
 	// conditionally add proxy header from Nginx
 	var proxyHeader string
 	if v.GetString("server.env") == "prod" {
@@ -242,5 +239,22 @@ func setupFiberWriter(conf *viper.Viper) (*os.File, error) {
 		return os.OpenFile(targetLog, os.O_CREATE|os.O_WRONLY|os.O_APPEND, os.ModePerm)
 	default:
 		return nil, errors.New("unsupported gorm logger output. only support console and file")
+	}
+}
+
+func setupFiberMetricsMonitor(conf *viper.Viper) monitor.Config {
+	// set default value for metrics refresh rate
+	refRate := conf.GetInt64("metrics.refresh")
+	if refRate == 0 {
+		refRate = 2 // set default to 2 seconds
+	}
+	// set default monitor title
+	title := conf.GetString("metrics.title")
+	if title == "" {
+		title = "Password Manager API Monitor"
+	}
+	return monitor.Config{
+		Title:   title,
+		Refresh: time.Duration(refRate) * time.Second,
 	}
 }
