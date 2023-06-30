@@ -3,7 +3,7 @@ module github.com/mdanialr/pwman_backend
 go 1.20
 
 require (
-	github.com/bytedance/sonic v1.9.1
+	github.com/bytedance/sonic v1.9.2
 	github.com/go-playground/validator/v10 v10.14.1
 	github.com/gofiber/fiber/v2 v2.47.0
 	github.com/gofiber/jwt/v3 v3.3.10
