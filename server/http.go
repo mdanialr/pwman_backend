@@ -83,8 +83,14 @@ func HTTP() {
 		Title:   "Password Manager API Metrics",
 		Refresh: 2 * time.Second,
 	}
+	// conditionally add proxy header from Nginx
+	var proxyHeader string
+	if v.GetString("server.env") == "prod" {
+		proxyHeader = "X-Real-Ip"
+	}
 	// init fiber app
 	fiberApp := fiber.New(fiber.Config{
+		ProxyHeader:           proxyHeader,
 		ReadTimeout:           10 * time.Second,
 		IdleTimeout:           5 * time.Second,
 		BodyLimit:             v.GetInt("server.limit") * 1024 * 1024,
