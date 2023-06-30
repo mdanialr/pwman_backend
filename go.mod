@@ -14,7 +14,7 @@ require (
 	github.com/stretchr/testify v1.8.3
 	go.uber.org/zap v1.24.0
 	gorm.io/driver/postgres v1.5.2
-	gorm.io/gorm v1.25.1
+	gorm.io/gorm v1.25.2
 	rsc.io/qr v0.2.0
 )
 
