@@ -11,7 +11,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/magiconair/properties v1.8.7
 	github.com/spf13/viper v1.16.0
-	github.com/stretchr/testify v1.8.3
+	github.com/stretchr/testify v1.8.4
 	go.uber.org/zap v1.24.0
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/gorm v1.25.2
