@@ -84,10 +84,15 @@ func HTTP() {
 			return false
 		},
 	})
+	// set default value for metrics refresh rate
+	monRefreshRate := v.GetInt64("metrics.refresh")
+	if monRefreshRate == 0 {
+		monRefreshRate = 2 // set default to 2 seconds
+	}
 	// init fiber monitor metrics config
 	monConf := monitor.Config{
 		Title:   "Password Manager API Metrics",
-		Refresh: 2 * time.Second,
+		Refresh: time.Duration(monRefreshRate) * time.Second,
 	}
 	// conditionally add proxy header from Nginx
 	var proxyHeader string

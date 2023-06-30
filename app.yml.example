@@ -21,6 +21,7 @@ storage:
   url: https://my.domain.com/dl # host url where from the files should be accessed/served
 metrics:
   pass: random-string # random string that should be passed as query param `pass` to access /metrics endpoint
+  refresh: 2 # refresh rate of metrics monitor in second
 
 # below sections (zap, gorm, fiber) are for logging related settings.
 zap:
