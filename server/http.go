@@ -77,6 +77,12 @@ func HTTP() {
 	fbLog := fiberLog.New(fiberLog.Config{
 		Output:     fiberLogWr,
 		TimeFormat: time.DateTime,
+		Next: func(c *fiber.Ctx) bool {
+			if c.Path() == "/metrics" {
+				return true
+			}
+			return false
+		},
 	})
 	// init fiber monitor metrics config
 	monConf := monitor.Config{
