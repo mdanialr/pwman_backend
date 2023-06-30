@@ -20,7 +20,7 @@ Simple password manager service
     ```
 6. Put that secret string to `app.yml` in section `cred.secret`.
 7. Use 2FA apps such as __Microsoft Authenticator__ or __Authy__ or similar, add new account and manually copy secret string
-   above, or you can generate the QR code file using `./sns_backend -qr "/my/path/"` and finally just scan that QR image.
+   above, or you can generate the QR code file using `./pwman_backend -qr "/my/path/"` and finally just scan that QR image.
 8. Verify that the TOTP is valid
     ```bash
     ./pwman_backend -verify 123456
@@ -37,8 +37,8 @@ Simple password manager service
     ./pwman_backend
     ```
 11. Check the log file that should be resided in directory that you put in config. There are should be 3 logs file:
-  - `app-log` is for fiber log access log, contain all endpoints that has been hit by client.
-  - `log` is for internal log, for example if failed to query to db, this app's host and port, etc.
+  - `fiber-app-log` is for fiber log access log, contain all endpoints that has been hit by client.
+  - `log` is for internal log, for example if failed to query from repository layer, this app's host and port, etc.
   - `gorm-log` just as the name suggest, GORM-related log file.
 
 ### Optional (_Integrate with systemd_)

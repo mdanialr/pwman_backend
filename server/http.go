@@ -77,14 +77,28 @@ func HTTP() {
 	fbLog := fiberLog.New(fiberLog.Config{
 		Output:     fiberLogWr,
 		TimeFormat: time.DateTime,
+		Next: func(c *fiber.Ctx) bool {
+			if c.Path() == "/metrics" {
+				return true
+			}
+			return false
+		},
 	})
+	// set default value for metrics refresh rate
+	monRefreshRate := v.GetInt64("metrics.refresh")
+	if monRefreshRate == 0 {
+		monRefreshRate = 2 // set default to 2 seconds
+	}
 	// init fiber monitor metrics config
-	monConf := monitor.Config{
-		Title:   "Password Manager API Metrics",
-		Refresh: 2 * time.Second,
+	monConf := setupFiberMetricsMonitor(v)
+	// conditionally add proxy header from Nginx
+	var proxyHeader string
+	if v.GetString("server.env") == "prod" {
+		proxyHeader = "X-Real-Ip"
 	}
 	// init fiber app
 	fiberApp := fiber.New(fiber.Config{
+		ProxyHeader:           proxyHeader,
 		ReadTimeout:           10 * time.Second,
 		IdleTimeout:           5 * time.Second,
 		BodyLimit:             v.GetInt("server.limit") * 1024 * 1024,
@@ -101,7 +115,16 @@ func HTTP() {
 		compress.New(),
 	)
 	// assign metrics to endpoint
-	fiberApp.Get("/metrics", monitor.New(monConf))
+	fiberApp.Get("/metrics",
+		// add guard to this endpoint, since this endpoint will expose hardware resource info
+		func(c *fiber.Ctx) error {
+			if c.Query("pass") == v.GetString("metrics.pass") {
+				return c.Next()
+			}
+			return c.SendStatus(fiber.StatusNotFound)
+		},
+		monitor.New(monConf),
+	)
 	// server file in /dl
 	dir := strings.TrimSuffix(v.GetString("storage.path"), "/")
 	fiberApp.Use("/dl",
@@ -166,7 +189,7 @@ func setupZapLogger(conf *viper.Viper) (*zap.Logger, error) {
 		zapConfig.Encoding = "console"
 	case "json":
 		zapConfig.Encoding = "json"
-		logPath := conf.GetString("zap.path")
+		logPath := strings.TrimSuffix(conf.GetString("zap.path"), "/") + "/log"
 		// make sure the output log path is not empty
 		if logPath == "" {
 			return nil, errors.New("zap.path is required when zap.log is json")
@@ -216,5 +239,22 @@ func setupFiberWriter(conf *viper.Viper) (*os.File, error) {
 		return os.OpenFile(targetLog, os.O_CREATE|os.O_WRONLY|os.O_APPEND, os.ModePerm)
 	default:
 		return nil, errors.New("unsupported gorm logger output. only support console and file")
+	}
+}
+
+func setupFiberMetricsMonitor(conf *viper.Viper) monitor.Config {
+	// set default value for metrics refresh rate
+	refRate := conf.GetInt64("metrics.refresh")
+	if refRate == 0 {
+		refRate = 2 // set default to 2 seconds
+	}
+	// set default monitor title
+	title := conf.GetString("metrics.title")
+	if title == "" {
+		title = "Password Manager API Monitor"
+	}
+	return monitor.Config{
+		Title:   title,
+		Refresh: time.Duration(refRate) * time.Second,
 	}
 }
