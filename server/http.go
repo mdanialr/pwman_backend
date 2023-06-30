@@ -113,7 +113,16 @@ func HTTP() {
 		compress.New(),
 	)
 	// assign metrics to endpoint
-	fiberApp.Get("/metrics", monitor.New(monConf))
+	fiberApp.Get("/metrics",
+		// add guard to this endpoint, since this endpoint will expose hardware resource info
+		func(c *fiber.Ctx) error {
+			if c.Query("pass") == v.GetString("metrics.pass") {
+				return c.Next()
+			}
+			return c.SendStatus(fiber.StatusNotFound)
+		},
+		monitor.New(monConf),
+	)
 	// server file in /dl
 	dir := strings.TrimSuffix(v.GetString("storage.path"), "/")
 	fiberApp.Use("/dl",

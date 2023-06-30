@@ -19,6 +19,8 @@ storage:
   driver: file # currently only support save file in local filesystem
   path: /full/path/assets # the full path where the uploaded files will be stored to
   url: https://my.domain.com/dl # host url where from the files should be accessed/served
+metrics:
+  pass: random-string # random string that should be passed as query param `pass` to access /metrics endpoint
 
 # below sections (zap, gorm, fiber) are for logging related settings.
 zap:
