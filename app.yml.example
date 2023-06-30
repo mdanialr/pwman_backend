@@ -1,0 +1,33 @@
+server:
+  env: dev # should be dev or prod
+  host: 127.0.0.1 # this app's host
+  port: 5656 # this app's port
+  limit: 50 # request body size limit that will be processed in MB (uploaded file size)
+db:
+  name: pw_api # database name
+  host: 127.0.0.1 # database host
+  port: 5432 # database port
+  user: postgres # username that will be used to connect to the database
+  pass: postgres # password that belong to the username
+jwt:
+  secret: secret # random string that will be used to signing and verify jwt token
+  duration: 1440 # duration of the jwt token validity in minutes.
+cred:
+  secret: RANDOMSTRING # you can get this secret by run the cli with `-gen` args
+  type: totp # either 'totp' or 'hotp' (use email)
+storage:
+  driver: file # currently only support save file in local filesystem
+  path: /full/path/assets # the full path where the uploaded files will be stored to
+  url: https://my.domain.com/dl # host url where from the files should be accessed/served
+
+# below sections (zap, gorm, fiber) are for logging related settings.
+zap:
+  log: console # zap log output type. json or console
+  path: .log/ # full path where zap will write the log
+gorm:
+  log: console # gorm log output type. file or console
+  path: .log/ # full path where gorm will write the log
+  lvl: 4 # gorm log level output. silent: 1; error: 2; warn: 3; info: 4 (the most verbose)
+fiber:
+  log: console # fiber app (route access) log output type. file or console
+  path: .log/ # full path where fiber app will write the log

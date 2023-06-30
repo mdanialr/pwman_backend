@@ -43,6 +43,8 @@ func errMsgMapping(fe validator.FieldError) string {
 		return "should be a boolean string"
 	case "alphanum":
 		return "should only contain alphabet and numeric characters"
+	case "image":
+		return "only accept valid image mime type (jpg|jpeg|png)"
 	}
 	return fe.Error()
 }

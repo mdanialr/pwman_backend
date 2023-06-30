@@ -21,4 +21,17 @@ func Run(db *gorm.DB) {
 var seeders = []struct {
 	Name string
 	Run  func(*gorm.DB)
-}{}
+}{
+	{
+		Name: "Registered OTP Entity",
+		Run:  registeredOtp,
+	},
+	{
+		Name: "Category Entity",
+		Run:  category,
+	},
+	{
+		Name: "Password Entity",
+		Run:  password,
+	},
+}

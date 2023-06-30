@@ -1,12 +1,23 @@
 package response
 
-import "github.com/go-playground/validator/v10"
+import (
+	"github.com/go-playground/validator/v10"
+
+	stderr "github.com/mdanialr/pwman_backend/internal/err"
+)
 
 // WithErr option to add given error message to error response as `message`
 // field.
 func WithErr(err error) AppErrorOption {
 	return func(a *appError) {
 		a.Message = err.Error()
+
+		// check in case error is returned by use case layer
+		switch e := err.(type) {
+		case *stderr.UC:
+			a.Code = e.Code
+			a.Message = e.Msg
+		}
 	}
 }
 

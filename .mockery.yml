@@ -1,0 +1,18 @@
+with-expecter: True
+case: underscore
+log-level: warn
+disable-version-string: True
+dir: "{{.InterfaceDir}}/mocks"
+outpkg: mocks
+mockname: "Mock{{.PackageName}}{{.InterfaceName}}"
+filename: "mock_{{.PackageName}}.gen.go"
+packages: # explicitly mention all mocked interfaces
+  github.com/mdanialr/pwman_backend/internal/domain/password/usecase:
+    interfaces:
+      UseCase:
+  github.com/mdanialr/pwman_backend/internal/domain/password/repository:
+    interfaces:
+      Repository:
+  github.com/mdanialr/pwman_backend/pkg/storage:
+    interfaces:
+      Port:
