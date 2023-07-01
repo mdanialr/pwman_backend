@@ -35,7 +35,7 @@ type useCase struct {
 
 func (u *useCase) IndexPassword(ctx context.Context, req password.Request) (*password.IndexResponse[password.Response], error) {
 	// set up repo options
-	opts := []repo.Options{repo.Paginate(&req.M), repo.Order(req.Order + " " + req.Sort)}
+	opts := []repo.Options{repo.Order(req.Order + " " + req.Sort)}
 	// additionally add search option
 	if req.Search != "" {
 		q := "username ILIKE '%" + req.Search + "%'" // search in password
@@ -54,6 +54,8 @@ func (u *useCase) IndexPassword(ctx context.Context, req password.Request) (*pas
 			opts = append(opts, repo.Ors(q2))
 		}
 	}
+	// set up pagination in last order
+	opts = append(opts, repo.Paginate(&req.M))
 
 	// search for all passwords that matched given conditions
 	pws, err := u.repo.FindPassword(ctx, opts...)
