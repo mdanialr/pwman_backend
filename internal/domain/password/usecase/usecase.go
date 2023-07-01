@@ -138,12 +138,14 @@ func (u *useCase) DeletePassword(ctx context.Context, id uint) error {
 
 func (u *useCase) IndexCategory(ctx context.Context, req password.RequestCategory) (*password.IndexResponse[password.ResponseCategory], error) {
 	// set up repo options
-	opts := []repo.Options{repo.Paginate(&req.M), repo.Order(req.Order + " " + req.Sort)}
+	opts := []repo.Options{repo.Order(req.Order + " " + req.Sort)}
 	// additionally add search option
 	if req.Search != "" {
 		q := "name ILIKE '%" + req.Search + "%'"
 		opts = append(opts, repo.Cons(q))
 	}
+	// set up pagination in last order
+	opts = append(opts, repo.Paginate(&req.M))
 
 	// search for all categories that matched given conditions
 	cats, err := u.repo.FindCategories(ctx, opts...)
