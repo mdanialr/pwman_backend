@@ -8,7 +8,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.49.2
 	github.com/gofiber/jwt/v3 v3.3.10
 	github.com/golang-jwt/jwt/v4 v4.5.0
-	github.com/google/uuid v1.3.1
+	github.com/google/uuid v1.4.0
 	github.com/magiconair/properties v1.8.7
 	github.com/spf13/viper v1.17.0
 	github.com/stretchr/testify v1.8.4
